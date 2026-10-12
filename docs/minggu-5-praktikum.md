@@ -2,7 +2,7 @@
 
 ## Tujuan dan perubahan
 
-Saya melanjutkan API GameHunter menjadi CRUD. Validasi dipisahkan ke StoreGameRequest dan UpdateGameRequest. GameResource menjaga bentuk JSON tetap sesuai contract Minggu 4.
+Saya melanjutkan API GameHunter menjadi CRUD. StoreGameRequest dan UpdateGameRequest memeriksa input. GameResource menjaga bentuk JSON tetap konsisten.
 
 ## Endpoint
 
@@ -22,7 +22,7 @@ Create membutuhkan title 3–200 karakter dan platform pc/browser. is_free opsio
 
 ## Bukti pengujian
 
-Diuji pada 12 Oktober 2026. **41 test Game, 132 assertion lulus**. Seluruh suite Pest: **43 test, 134 assertion lulus**. Newman: **8 request, 26 assertion lulus**.
+Diuji pada 12 Oktober 2026. **41 test Game, 132 assertion lulus**. Seluruh suite Pest: **43 test, 134 assertion lulus**.
 
 | Pengujian | Hasil aktual |
 | --- | --- |
@@ -57,11 +57,11 @@ DELETE — 204, body kosong, 2/2 test lulus.
 
 ![Delete game 204](../images/gamehunter-delete-204.jpg)
 
-Collection menyimpan contoh response aktual 201, 422, 200, 404, dan 204. Hasil Newman: 8 request dan 26 assertion lulus, tanpa kegagalan.
+Screenshot menunjukkan hasil create, validasi, update, data tidak ditemukan, dan delete.
 
-## Perbandingan contract
+## Bentuk response
 
-Nama field dan wrapper data tetap sama. CRUD menambah status 201 dan 204. Error 404 tetap `{"message":"Resource not found","errors":null}`; validasi menghasilkan 422 dengan message dan errors. Lihat [contract CRUD](api-contract-minggu-5.md).
+Response sukses memakai wrapper `data`. Create menghasilkan 201, update 200, dan delete 204 tanpa body. Error 404 berisi `{"message":"Resource not found","errors":null}`. Validasi gagal menghasilkan 422 dengan `message` dan `errors`.
 
 ## Menjalankan ulang
 
@@ -71,13 +71,18 @@ Kode Laravel berada di project lokal `projek_api`. Repository ini berisi dokumen
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Import [collection Minggu 5](postman-collection.md) ke Postman. Jalankan berurutan; Create Game menyimpan ID untuk PATCH dan DELETE.
+Di Postman, gunakan URL dasar `http://127.0.0.1:8000`. Kirim POST dengan body JSON berikut:
+
+```json
+{"title":"Game Praktikum CRUD","platform":"pc","is_free":true}
+```
+
+Catat ID dari response. Gunakan ID itu untuk GET, PATCH, dan DELETE. Untuk PATCH, kirim `{"is_free":false}`. Coba POST dengan title kosong dan platform console untuk melihat 422. GET `/api/games/999999` menghasilkan 404.
 
 Pada terminal kedua:
 
 ```bash
 php artisan test --compact tests/Feature/GameCrudTest.php tests/Feature/GameReadOnlyTest.php
-npx newman run postman/GameHunter_Minggu_5.postman_collection.json
 ```
 
 ## Kesimpulan
